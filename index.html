@@ -29,11 +29,19 @@
       max-width: 800px;
       height: auto;
     }
-    #label-container div {
+    .label-box {
+      margin-top: 1em;
       font-weight: bold;
-      font-size: 2em;
-      margin-top: 0.5em;
+      font-size: 1.5em;
     }
+    .bar {
+      height: 25px;
+      margin-top: 0.3em;
+      border-radius: 5px;
+    }
+    .lion { background-color: orange; }
+    .zebra { background-color: red; }
+    .ornitorinco { background-color: purple; }
   </style>
 </head>
 <body>
@@ -44,12 +52,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <script type="text/javascript">
-    const URL = "./";
+    const URL = "https://teachablemachine.withgoogle.com/models/k_LLBp9zI/";
 
     let model, webcam, labelContainer, maxPredictions;
 
     async function init() {
-        document.getElementById("start-button").style.display = "none"; // Nasconde il pulsante
+        document.getElementById("start-button").style.display = "none";
 
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
@@ -65,8 +73,24 @@
 
         document.getElementById("webcam-container").appendChild(webcam.canvas);
         labelContainer = document.getElementById("label-container");
+
         for (let i = 0; i < maxPredictions; i++) {
-            labelContainer.appendChild(document.createElement("div"));
+            const labelBox = document.createElement("div");
+            labelBox.className = "label-box";
+            const label = document.createElement("div");
+            const bar = document.createElement("div");
+            bar.classList.add("bar");
+
+            // Colore barra in base alla classe
+            if (i === 0) bar.classList.add("leone", "lion");
+            else if (i === 1) bar.classList.add("zebra");
+            else if (i === 2) bar.classList.add("ornitorinco");
+
+            bar.style.width = "0%";
+
+            labelBox.appendChild(label);
+            labelBox.appendChild(bar);
+            labelContainer.appendChild(labelBox);
         }
     }
 
@@ -81,7 +105,10 @@
         for (let i = 0; i < maxPredictions; i++) {
             const percentage = (prediction[i].probability * 100).toFixed(1);
             const classPrediction = prediction[i].className + ": " + percentage + "%";
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+
+            const labelBox = labelContainer.childNodes[i];
+            labelBox.childNodes[0].innerHTML = classPrediction;
+            labelBox.childNodes[1].style.width = percentage + "%";
         }
     }
   </script>
